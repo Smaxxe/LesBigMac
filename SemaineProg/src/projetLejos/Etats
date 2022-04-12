@@ -1,0 +1,51 @@
+ETATS DE L'AUTOMATE
+
+ETAT DE RECHERCHE TOUR COMPLET :
+	- Tour sur soi-même en chopant des infos
+	- On prend la plus petite valeur
+	- On se replace dans la direction de la plus petite valeur
+	- On revérifie que cette valeur est encore la même
+	- On passe dans l'état D'AVANCEE VERS PALET
+	- Dans le cas où on a pas de petite valeur (que des infini ou des valeurs très loin toutes)
+	- On passe dans l'état MOUVEMENT ALEATOIRE
+
+ETAT TOUR 50% :
+	- On fait un tour mais pas complet, juste on se retourne et on regarde en arc de cercle
+	- On chope les infos et on va vers le plus proche
+	
+ETAT MOUVEMENT ALEATOIRE :
+	- On fait un mouvement au pif pour se déplacer
+	- On passe dans l'etat RECHERCHE TOUR COMPLET
+	
+ETAT D'AVANCEE VERS PALET :
+	- On avance en prenant des données
+	- Si c'est un palet on passe dans l'état DE CHOPAGE DU PALET
+	- Si on passe à côté du palet on se repositionne et on passe dans le même état
+	- Si c'est un mur on passe dans l'état RECHERCHE TOUR 50% 
+	
+ETAT CHOPAGE DE PALET 
+	- On ouvre les pinces
+	- On avance jusqu'à ce que le senseur de poussée renvoie true
+	- On s'arrête
+	- On ferme les pinces
+	- On passe à l'état GO GO LES NIQUER
+
+ETAT GO GO LES NIQUER
+	- On se positionne à 0 : la direction du camp adverse
+	- On avance jusqu'à trouver une ligne blanche
+	- On ouvre les pinces
+	- On recule assez
+	- On referme les pinces
+	- On passe dans l'état TOUR 50%
+	
+ETAT RENCONTRE D'UN TRUC QUAND ON A UN PALET :
+	- On capte un truc
+	- On fait un pas de côté
+	- On se replace
+	- On repasse en état GO GO LES NIQUER
+	
+Pour rpz ça c'est un while (qu'on peut arrêter en appuyant sur la touche centrale ?) avec un switch dedans
+Selon les données dans un état, on renvoie une valeur qu'on va stocker dans l'attribut ETAT, puis break, pour rerentrer dans la boucle 
+ce qui permet de rentrer dans un nouvel état du switch
+
+Dans la classe principale : 
