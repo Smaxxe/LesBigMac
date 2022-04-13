@@ -3,6 +3,7 @@ package projetLejos;
 import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.Motor;
+import lejos.hardware.motor.NXTRegulatedMotor;
 import lejos.hardware.port.Port;
 import lejos.robotics.chassis.Chassis;
 import lejos.robotics.chassis.Wheel;
@@ -17,7 +18,6 @@ public class Shrek {
 	private static final String PORTOUCH = "S2";
 	private static final String PORTCOLOR = "S3";
 
-
 	// Objets qui vont nous servir tout le long
 	private Senseurs sensor;
 	private Actions act;
@@ -26,21 +26,26 @@ public class Shrek {
 	private static int ETAT;
 
 	public Shrek() {
-		
-		//instanciation d'un objet qui contrôle les senseurs
+
+		// instanciation d'un objet qui contrôle les senseurs
 		Port us = LocalEV3.get().getPort(PORTUS);
 		Port touch = LocalEV3.get().getPort(PORTOUCH);
 		Port color = LocalEV3.get().getPort(PORTCOLOR);
 		sensor = new Senseurs(us, touch, color);
 
-		//Instanciation d'un objet qui contrôle les moteurs
+		// Instanciation d'un objet qui contrôle les moteurs
 		act = new Actions();
 
-		//Déclaration de l'état initial
-		ETAT = 2;
+		// Déclaration de l'état initial
+		ETAT = 0;
 	}
 
 	public static void main(String[] args) {
+
+////		MovePilot pilote = new MovePilot(55, 55, Motor.A, Motor.B);
+//		pilote.setLinearSpeed(2000);
+//		
+//		pilote.travel(2000);
 
 		Shrek shrek = new Shrek();
 
@@ -53,48 +58,7 @@ public class Shrek {
 			case 0:
 				System.out.println("Début de partie, lancement de la première action en dur");
 
-//				pilote.travel(150, true);
-//				for (int i = 0; i < 500; i++) {
-//					Motor.C.forward();
-//				}
-//				Delay.msDelay(200);
-//				Motor.C.stop();
-//
-//				for (int i = 0; i < 500; i++) {
-//					Motor.C.backward();
-//
-//				}
-//				Delay.msDelay(200);
-//				Motor.C.stop();
-//				
-//				pilote.rotate(50);
-//				pilote.travel(450);
-//				pilote.rotate(-50);
-//				pilote.travel(1000);
-//				
-//				for (int i = 0; i < 500; i++) {
-//					Motor.C.forward();
-//				}
-//				Delay.msDelay(200);
-//				Motor.C.stop();
-//				
-//				pilote.travel(-150);
-//
-//				for (int i = 0; i < 500; i++) {
-//					Motor.C.backward();
-//
-//				}
-//				Delay.msDelay(300);
-//				Motor.C.stop();
-//				try {
-//					Thread.sleep(2000);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-
-//				
-				ETAT = 1;
+				ETAT = shrek.premierPaletPositionADroite();
 				break;
 
 			// Cas où le robot va tourner pour trouver un angle vers lequel aller
@@ -117,28 +81,6 @@ public class Shrek {
 
 			// Cas où le robot va aller vers un palet en vérifiant que tout se passe bien
 			case 2:
-				shrek.act.mouvement(4000, true);
-
-				if (shrek.sensor.detectPalet() == 0) {
-					System.out.println("Detection d'un palet");
-					shrek.act.stopPilote();
-
-					shrek.act.choperPalet();
-					
-					shrek.act.tourne180(false);
-					shrek.act.mouvement(5000, true);
-				
-				}
-				
-				if(shrek.sensor.detectPalet() == 2) {
-					shrek.act.stopPilote();
-
-					shrek.act.lacherPalet();
-					
-					ETAT = 1;
-					break;
-				}
-				
 
 				// Cas où le robot doit se repositionner en face du palet
 			case 3:
@@ -153,4 +95,31 @@ public class Shrek {
 		}
 	}
 
+	private int premierPaletPositionADroite() {
+		this.act.mouvement(400, false);
+		this.act.choperPalet(); // il attrape le 1er palet
+		
+		// il évite le palet
+		this.act.tourne(-55, false);
+		this.act.mouvement(500, false);
+		this.act.tourne(50, false);
+		
+		//Il va vers le camp adverse
+		this.act.mouvement(1500, false);
+		this.act.ouvrirPinces(false);
+		this.act.mouvement(-200, false);
+		this.act.fermerPinces(false);
+
+		this.act.tourne(360, false); // Tour au moment de retourner chercher le 2 palet
+		this.act.ouvrirPinces(false);
+		this.act.mouvement(300, false);
+		this.act.fermerPinces(false); // A chopé le 2e palet
+
+		this.act.tourne(-380, false);
+		this.act.mouvement(400, false); // Va vers la ligne adverse
+		this.act.lacherPalet();
+
+		return 1;
+
+	}
 }

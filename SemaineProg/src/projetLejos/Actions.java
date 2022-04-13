@@ -29,10 +29,10 @@ public class Actions {
 	public Actions() {
 		
 		this.pilote = new MovePilot(55, 55, PORTROUEG, PORTROUED); // marche bien
-		this.pilote.setLinearSpeed(1000);
-		this.pilote.setAngularSpeed(150);
+		this.pilote.setLinearSpeed(300);
+		this.pilote.setAngularSpeed(400);
 		
-		this.pince = Motor.C; // ?
+		this.pince = Motor.C; 
 		this.pince.setSpeed(2000);
 		
 
@@ -46,44 +46,25 @@ public class Actions {
 	}
 	
 	public void tourne360(boolean enCours) {
-		pilote.rotate(300, enCours);
+		pilote.rotate(410, enCours);
 	}
 
 	public void tourne180(boolean enCours) {
-		pilote.rotate(150, enCours); // 180 marche pas de ouf, 150 fait un 180
+		pilote.rotate(205, enCours); // 180 marche pas de ouf, 150 fait un 180
 	}
 
 	public void tourne(int angle, boolean enCours) {
 		pilote.rotate(angle, enCours);
 	}
-
-	/**
-	 *  Méthode qui ouvre seulement les pinces quand on a un palet
-	 */
-	public void laisserPalet() {
-		pince.forward();
-		Delay.msDelay(400);
-		pince.stop();
-	}
 	
-	public void ouvrirPourPalet() {
-		pince.forward();
-		Delay.msDelay(600);
-		pince.stop();
+	public void ouvrirPinces(boolean enCours) {
+		pince.rotate(1000, enCours);
 	}
 
 	// faire deux méthodes : fermeture avec palet et sans palet
 
-	public void fermerSansPalet() {
-		pince.backward();
-		Delay.msDelay(400);
-		pince.stop();
-	}
-
-	public void fermerAvecPalet() {
-		pince.backward();
-		Delay.msDelay(600);
-		pince.stop();
+	public void fermerPinces(boolean enCours) {
+		pince.rotate(-1000, enCours);
 	}
 
 	public void stopPilote() {
@@ -91,9 +72,9 @@ public class Actions {
 	}
 	
 	public void choperPalet() {
-		ouvrirPourPalet();
-		mouvement(150, false);
-		fermerAvecPalet();
+		ouvrirPinces(false);
+		mouvement(180, false);
+		fermerPinces(false);
 	}
 	
 	/** Méthode qui permet de lacher complètement un palet, donc ouvrir, reculer et fermer
@@ -101,10 +82,13 @@ public class Actions {
 	 * 
 	 */
 	public void lacherPalet() {
-		laisserPalet();
-		mouvement(-150, false);
-		fermerSansPalet();
+		ouvrirPinces(false);
+		mouvement(-200, false);
+		fermerPinces(false);
 		tourne180(false);
 	}
 
+	public boolean isMovingPilote() {
+		return pilote.isMoving();
+	}
 }

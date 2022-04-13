@@ -1,10 +1,16 @@
 package projetLejos;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+
 import lejos.hardware.port.Port;
+import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3TouchSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
+import lejos.utility.Delay;
 
 public class Senseurs {
 
@@ -13,12 +19,14 @@ public class Senseurs {
 	private final static int MUR = 2;
 	private final static int RIEN = -1;
 
-	private SensorModes SenseurUS;
-	private SensorModes SenseurTouch;
+	private EV3UltrasonicSensor SenseurUS;
+	private EV3TouchSensor SenseurTouch;
+	private EV3ColorSensor SenseurColor;
 
 	public Senseurs(Port us, Port touch, Port color) {
 		SenseurUS = new EV3UltrasonicSensor(us);
 		SenseurTouch = new EV3TouchSensor(touch);
+		SenseurColor = new EV3ColorSensor(color);
 	}
 
 	/**
@@ -65,4 +73,104 @@ public class Senseurs {
 		}
 		return RIEN;
 	}
+	
+	/** Analyse les distances pendant un mouvement
+	 * 
+	 * @return une arraylist de float avec toutes les valeurs chopées pendant le mouvement
+	 */
+	public List<Float> prendreMesures(Actions act) {
+		SampleProvider distance = SenseurUS.getMode("Distance");
+
+		float[] sample = new float[distance.sampleSize()];
+		
+		List<Float> valeurs = new ArrayList<Float>();
+		
+		while(act.isMovingPilote()) {
+			Delay.msDelay(100);
+			distance.fetchSample(sample, 0);
+			valeurs.add(sample[0]);
+		}
+		
+		return valeurs;
+	}
+	
+	/** Prend une arraylist en paramètres et analyse ses valeurs pour renvoyer un angle de placement du robot
+	 * le paramètre angle permet de savoir l'angle de rotation du robot 
+	 * 
+	 * @return l'angle de déplacement nécessaire pour se positionner devant la distance la plus courte
+	 */
+	public int anglePosition(int angle, List<Float> valeurs) {
+		
+		int compteur = 1;
+		int indice = 0;
+		
+		ListIterator<Float> it = valeurs.listIterator();
+		
+		while(it.hasNext()) {
+			
+			if(valeurs.get(indice) < 0.26) {
+				indice = compteur;
+			}
+			
+			if((it.next() > 0.26 && it.next() < valeurs.get(indice))) {
+				indice = compteur;
+			}	
+				compteur++;
+				it.next();
+		}
+		
+		//On passe au calcul de l'angle à renvoyer en se basant sur l'indice de la plus petite valeur récupérée
+		
+		int degres = angle / compteur;
+		int res = degres * 
+		
+		return res;
+	}
+	
+	public boolean isPressed()
+    {
+        float[] sample = new float[1];
+        SenseurTouch.fetchSample(sample, 0);
+
+        return sample[0] != 0;
+    }
+	
+	/**
+	 * Delays all action as long as the touch sensor is not pressed
+	 * 
+	 */
+	
+	private void waitForTouch()
+    {
+        System.out.println("Waiting for press on Touch Sensor");
+
+        while (!isPressed())
+        {
+            Delay.msDelay(100);
+        }
+
+        System.out.println("Touch Sensor pressed.");
+    }
+	
+	/** Tourne tant que le robot ne détecte pas la couleur blanc
+	 * 
+	 * @return true quand c'est blanc, false sinon
+	 */
+	public boolean isWhite() {
+		SampleProvider colorProvider = SenseurColor.getRGBMode(); 
+		float[] colorSample = new float[colorProvider.sampleSize()];
+		
+		SenseurColor.fetchSample(colorSample, 0);
+		Delay.msDelay(250);
+		
+		if (colorSample[0] > 0.18 && colorSample[1] > 0.18 && colorSample[2] > 0.18) {
+			Delay.msDelay(250);
+			return true;
+		}
+		
+		return false;
+	}
+		
+	
+	
 }
