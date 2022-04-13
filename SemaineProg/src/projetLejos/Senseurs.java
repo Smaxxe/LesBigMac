@@ -48,7 +48,7 @@ public class Senseurs {
 			distPrec = sample[0];
 			distance.fetchSample(sample, 0);
 			System.out.println("Distance :  " + distPrec);
-			
+
 			// Test pour voir si on est juste en face d'un palet
 			if ((distPrec > 0.285 && distPrec < 0.330) && (sample[0] > 0.340)) {
 				// On va lancer le code d'attrapage
@@ -73,104 +73,118 @@ public class Senseurs {
 		}
 		return RIEN;
 	}
-	
-	/** Analyse les distances pendant un mouvement
+
+	/**
+	 * Analyse les distances pendant un mouvement
 	 * 
-	 * @return une arraylist de float avec toutes les valeurs chopées pendant le mouvement
+	 * @return une arraylist de float avec toutes les valeurs chopées pendant le
+	 *         mouvement
 	 */
 	public List<Float> prendreMesures(Actions act) {
 		SampleProvider distance = SenseurUS.getMode("Distance");
 
 		float[] sample = new float[distance.sampleSize()];
-		
+
 		List<Float> valeurs = new ArrayList<Float>();
-		
-		while(act.isMovingPilote()) {
+
+		while (act.isMovingPilote()) {
 			Delay.msDelay(100);
 			distance.fetchSample(sample, 0);
 			valeurs.add(sample[0]);
 		}
-		
+
 		return valeurs;
 	}
-	
-	/** Prend une arraylist en paramètres et analyse ses valeurs pour renvoyer un angle de placement du robot
-	 * le paramètre angle permet de savoir l'angle de rotation du robot 
+
+	/**
+	 * Prend une arraylist en paramètres et analyse ses valeurs pour renvoyer un
+	 * angle de placement du robot le paramètre angle permet de savoir l'angle de
+	 * rotation du robot
 	 * 
-	 * @return l'angle de déplacement nécessaire pour se positionner devant la distance la plus courte
+	 * @return l'angle de déplacement nécessaire pour se positionner devant la
+	 *         distance la plus courte
 	 */
 	public int anglePosition(int angle, List<Float> valeurs) {
-		
-		int compteur = 1;
-		int indice = 0;
-		
-		ListIterator<Float> it = valeurs.listIterator();
-		
-		while(it.hasNext()) {
-			
-			if(valeurs.get(indice) < 0.26) {
-				indice = compteur;
-			}
-			
-			if((it.next() > 0.26 && it.next() < valeurs.get(indice))) {
-				indice = compteur;
-			}	
-				compteur++;
-				it.next();
-		}
-		
-		//On passe au calcul de l'angle à renvoyer en se basant sur l'indice de la plus petite valeur récupérée
-		
-		int degres = angle / compteur;
-		int res = degres * 
-		
-		return res;
-	}
-	
-	public boolean isPressed()
-    {
-        float[] sample = new float[1];
-        SenseurTouch.fetchSample(sample, 0);
 
-        return sample[0] != 0;
-    }
-	
+//		int compteur = 1;
+//		int indice = 0;
+		float val;
+		boolean test = false;
+		float stock = 500;
+
+		ListIterator<Float> it = valeurs.listIterator();
+
+		while (it.hasNext()) {
+			while (test == false) {
+				try {
+					val = it.next();
+
+					if (val < stock) {
+						stock = val;
+					}
+
+					test = true;
+				} catch (Error e) {
+					it.next();
+				}
+			}
+
+			test = false;
+		}
+
+		// On passe au calcul de l'angle à renvoyer en se basant sur l'indice de la plus
+		// petite valeur récupérée
+		
+		int sampleDegres = angle / valeurs.size(); // Calcul de l'angle de chaque donnée
+		int angleTot = sampleDegres * valeurs.indexOf(stock); // Calcul de l'angle absolu à prendre
+
+		if (angleTot <= (angle / 2)) { //si on est dans la première moitié du tour
+			return (angleTot); //on renvoie l'angle calculé
+		} else { //Sinon on renvoie la valeur pour aller dans l'autre sens
+			return (angleTot - angle);
+		}
+	}
+
+	public boolean isPressed() {
+		float[] sample = new float[1];
+		SenseurTouch.fetchSample(sample, 0);
+
+		return sample[0] != 0;
+	}
+
 	/**
 	 * Delays all action as long as the touch sensor is not pressed
 	 * 
 	 */
-	
-	private void waitForTouch()
-    {
-        System.out.println("Waiting for press on Touch Sensor");
 
-        while (!isPressed())
-        {
-            Delay.msDelay(100);
-        }
+	private void waitForTouch() {
+		System.out.println("Waiting for press on Touch Sensor");
 
-        System.out.println("Touch Sensor pressed.");
-    }
-	
-	/** Tourne tant que le robot ne détecte pas la couleur blanc
+		while (!isPressed()) {
+			Delay.msDelay(100);
+		}
+
+		System.out.println("Touch Sensor pressed.");
+	}
+
+	/**
+	 * Tourne tant que le robot ne détecte pas la couleur blanc
 	 * 
 	 * @return true quand c'est blanc, false sinon
 	 */
 	public boolean isWhite() {
-		SampleProvider colorProvider = SenseurColor.getRGBMode(); 
+		SampleProvider colorProvider = SenseurColor.getRGBMode();
 		float[] colorSample = new float[colorProvider.sampleSize()];
-		
+
 		SenseurColor.fetchSample(colorSample, 0);
 		Delay.msDelay(250);
-		
+
 		if (colorSample[0] > 0.18 && colorSample[1] > 0.18 && colorSample[2] > 0.18) {
 			Delay.msDelay(250);
 			return true;
 		}
-		
+
 		return false;
 	}
-		
-	
-	
+
 }

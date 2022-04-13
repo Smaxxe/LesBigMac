@@ -28,9 +28,9 @@ public class Actions {
 	// constructeur, instancie 3 moteurs ( attributs)
 	public Actions() {
 		
-		this.pilote = new MovePilot(55, 55, PORTROUEG, PORTROUED); // marche bien
+		this.pilote = new MovePilot(55, 55, 145, PORTROUED, PORTROUEG, false); // marche bien
 		this.pilote.setLinearSpeed(300);
-		this.pilote.setAngularSpeed(400);
+		this.pilote.setAngularSpeed(200);
 		
 		this.pince = Motor.C; 
 		this.pince.setSpeed(2000);
@@ -46,11 +46,11 @@ public class Actions {
 	}
 	
 	public void tourne360(boolean enCours) {
-		pilote.rotate(410, enCours);
+		pilote.rotate(300, enCours);
 	}
 
 	public void tourne180(boolean enCours) {
-		pilote.rotate(205, enCours);
+		pilote.rotate(150, enCours);
 	}
 
 	public void tourne(int angle, boolean enCours) {
