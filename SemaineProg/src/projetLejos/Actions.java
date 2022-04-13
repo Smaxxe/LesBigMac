@@ -50,7 +50,7 @@ public class Actions {
 	}
 
 	public void tourne180(boolean enCours) {
-		pilote.rotate(205, enCours); // 180 marche pas de ouf, 150 fait un 180
+		pilote.rotate(205, enCours);
 	}
 
 	public void tourne(int angle, boolean enCours) {
