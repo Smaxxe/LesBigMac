@@ -104,10 +104,8 @@ public class Senseurs {
 	 * @return l'angle de déplacement nécessaire pour se positionner devant la
 	 *         distance la plus courte
 	 */
-	public int anglePosition(int angle, List<Float> valeurs) {
+	public int anglePosition360(int angle, List<Float> valeurs) {
 
-//		int compteur = 1;
-//		int indice = 0;
 		float val;
 		boolean test = false;
 		float stock = 500;
@@ -134,15 +132,50 @@ public class Senseurs {
 
 		// On passe au calcul de l'angle à renvoyer en se basant sur l'indice de la plus
 		// petite valeur récupérée
-		
+
 		int sampleDegres = angle / valeurs.size(); // Calcul de l'angle de chaque donnée
 		int angleTot = sampleDegres * valeurs.indexOf(stock); // Calcul de l'angle absolu à prendre
 
-		if (angleTot <= (angle / 2)) { //si on est dans la première moitié du tour
-			return (angleTot); //on renvoie l'angle calculé
-		} else { //Sinon on renvoie la valeur pour aller dans l'autre sens
-			return (angleTot - angle);
+		if (angleTot <= (angle / 2)) { // si on est dans la première moitié du tour
+			return (-angleTot); // on renvoie l'angle calculé
+		} else { // Sinon on renvoie la valeur pour aller dans l'autre sens
+			return (angle - angleTot);
 		}
+	}
+
+	public int anglePosition180(int angle, List<Float> valeurs) {
+
+		float val;
+		boolean test = false;
+		float stock = 500;
+
+		ListIterator<Float> it = valeurs.listIterator();
+
+		while (it.hasNext()) {
+			while (test == false) {
+				try {
+					val = it.next();
+
+					if (val < stock) {
+						stock = val;
+					}
+
+					test = true;
+				} catch (Error e) {
+					it.next();
+				}
+			}
+
+			test = false;
+		}
+
+		// On passe au calcul de l'angle à renvoyer en se basant sur l'indice de la plus
+		// petite valeur récupérée
+
+		int sampleDegres = angle / valeurs.size(); // Calcul de l'angle de chaque donnée
+		int angleTot = sampleDegres * valeurs.indexOf(stock); // Calcul de l'angle absolu à prendre
+
+		return (angle - angleTot); // on renvoie l'angle calculé
 	}
 
 	public boolean isPressed() {
