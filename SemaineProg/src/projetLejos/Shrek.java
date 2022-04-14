@@ -33,6 +33,7 @@ public class Shrek {
 	private static final int ANGLE360 = 300;
 	private static final int ANGLE180 = 150;
 	private static final int ANGLE90 = 75;
+	private static final int ANGLE45 = 37;
 
 	// Objets qui vont nous servir tout le long
 	private Senseurs sensor;
@@ -53,7 +54,7 @@ public class Shrek {
 		act = new Actions();
 
 		// Déclaration de l'état initial
-		ETAT = 0;
+		ETAT = CHERCHETOURNE;
 		
 
 	}
@@ -98,7 +99,7 @@ public class Shrek {
 				// Cas où le robot vient de choper un palet pour l'amener dans le camp en face
 			case GOCAMPADVERSE:
 				System.out.println("Go vers chez les adversaires");
-				shrek.allerVersCampAdverse();
+				ETAT = shrek.allerVersCampAdverse();
 				break;
 				// Cas où le robot vient de franchir une ligne blanche du camp adverse, dépôt du
 				// palet
@@ -120,7 +121,7 @@ public class Shrek {
 		// il évite le palet
 		this.act.tourne(-45, false);
 		this.act.mouvement(400, false);
-		this.act.tourne(48, false);
+		this.act.tourne(46, false);
 		
 		//Il va vers le camp adverse
 		this.act.mouvement(1540, false);
@@ -138,6 +139,11 @@ public class Shrek {
 		this.act.lacherPalet();
 		
 		this.act.mouvement(620, false);
+		this.act.choperPalet();
+		this.act.tourne(175, false);
+		this.act.mouvement(1000, false);
+		this.act.lacherPalet();
+		this.act.mouvement(650, false);
 
 		return CHERCHETOURNE; //Doit retourner 1 normalement
 	}
@@ -147,7 +153,7 @@ public class Shrek {
 	 * @return VERSPALET
 	 */
 	private int rotationInformation360() {
-		this.act.tourne(ANGLE360, true);
+		this.act.tourneMesures(ANGLE360, true);
 		int angle = this.sensor.anglePosition360(ANGLE360, this.sensor.prendreMesures(act));
 		this.act.tourne(angle, false);
 		return VERSPALET;
@@ -160,10 +166,10 @@ public class Shrek {
 	 * @return VERSPALET
 	 */
 	private int rotationInformation180() {
-		this.act.tourne(ANGLE90, true);
+		this.act.tourne(ANGLE45, true);
 		this.act.stopPilote();
-		this.act.tourne(-ANGLE180, true);
-		int angle = this.sensor.anglePosition180(ANGLE180, this.sensor.prendreMesures(act));
+		this.act.tourneMesures(-ANGLE90, true);
+		int angle = this.sensor.anglePosition180(ANGLE90, this.sensor.prendreMesures(act));
 		this.act.tourne(angle, false);
 		return VERSPALET;
 	}
@@ -180,29 +186,36 @@ public class Shrek {
 		if(status == PALET) {
 			this.act.stopPilote();
 			this.act.choperPalet();
+			return GOCAMPADVERSE;
 		} else if(status == REPO) {
 			this.act.stopPilote();
-			return CHERCHETOURNE;
+			return REPOPALET;
 		} else {
 			this.act.stopPilote();
 			this.act.tourne(ANGLE180, false);
+			return CHERCHETOURNE;
 		}
-		
-		return GOCAMPADVERSE; //doit retourner 4 : aller vers camp adverse
 	}
 	
+	/** Méthode qui permet de s'orienter vers le camp adverse et d'aller y poser le palet
+	 * 
+	 * @return soit CHERCHETOURNE, soit REPOPALET si le truc rencontre un mur en revenant vers le centre
+	 */
 	private int allerVersCampAdverse() {
-		this.act.tourne(this.act.getPoleNord(), false);
+		int poleNord = this.act.getPoleNord();
+		System.out.println("Angle pole : " + poleNord);
+		this.act.tournePoleNord();
 		
 		this.act.mouvement(4000, true);
 		
-		if(this.sensor.isWhite()) {
+		if(this.sensor.isWhite() == true) {
 			this.act.stopPilote();
 			this.act.lacherPalet();
-			this.act.mouvement(700, false);
+			this.act.mouvement(450, true);
+			return CHERCHETOURNE;
 		}
 		
-		return CHERCHETOURNE;
+		return GOCAMPADVERSE;
 	}
 	
 }
