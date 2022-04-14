@@ -33,7 +33,7 @@ public class Actions {
 
 		this.pilote = new MovePilot(55, 55, 145, PORTROUEG, PORTROUED, false); // marche bien
 		this.pilote.setLinearSpeed(300);
-		this.pilote.setAngularSpeed(150);
+		this.pilote.setAngularSpeed(100); //TODO : vitesse passée de 150 à 100 à 18h49, ne pas oublier de changer dans la méthode
 
 		this.pince = Motor.C;
 		this.pince.setSpeed(2000);
@@ -56,40 +56,13 @@ public class Actions {
 		// On calcule la valeur qui va modifier le pole en enlevant les petites valeurs
 		// d'ajustement
 		// Et en vérifiant que c'est toujours entre 0 et 360
-		int calculPole = ((angle / 10) * 10) % 300;
+		int calculPole = angle % 300;
 
 		// Ici on teste pour limiter les variations et éviter d'enlever 7 et pas
 		// seulement 2
 
-		float testReste = (float) Math.abs(angle) / 10;
-
-		if (testReste > 0.5) {
-			if (calculPole < 0) {
-				calculPole += -5;
-			} else {
-				calculPole += 5;
-			}
-		}
-		
-		//On change la valeur dans poleNord
-		this.setPoleNord(this.getPoleNord() - calculPole);
-	}
-	
-	public void tourneMesures(int angle, boolean enCours) {
-		pilote.setAngularSpeed(50);
-		pilote.rotate(angle, enCours);
-
-		// On calcule la valeur qui va modifier le pole en enlevant les petites valeurs
-		// d'ajustement
-		// Et en vérifiant que c'est toujours entre 0 et 360
-		//int calculPole = ((Math.abs(angle) / 10) * 10)% 360;
-		int calculPole = Math.abs(angle) % 360;
-
-		// Ici on teste pour limiter les variations et éviter d'enlever 7 et pas
-		// seulement 2
-
-		float testReste = (float) Math.abs(angle) / 10;
-
+//		double testReste = (double) Math.abs(angle) / 10;
+//
 //		if (testReste > 0.5) {
 //			if (calculPole < 0) {
 //				calculPole += -5;
@@ -98,14 +71,38 @@ public class Actions {
 //			}
 //		}
 		
-		if(angle < 0) {
-			calculPole = - calculPole;
-		}
+		//On change la valeur dans poleNord
+		int newPole = this.getPoleNord() - calculPole;
+		this.setPoleNord(newPole);
+	}
+	
+	public void tourneMesures(int angle, boolean enCours) {
+		pilote.setAngularSpeed(50);
+		tourne(angle, enCours);
+
+		// On calcule la valeur qui va modifier le pole en enlevant les petites valeurs
+		// d'ajustement
+		// Et en vérifiant que c'est toujours entre 0 et 360
+		int calculPole = angle % 300;
+
+		// Ici on teste pour limiter les variations et éviter d'enlever 7 et pas
+		// seulement 2
+//
+//		double testReste = (double) Math.abs(angle) / 10;
+//
+//		if (testReste > 0.5) {
+//			if (calculPole < 0) {
+//				calculPole += -5;
+//			} else {
+//				calculPole += 5;
+//			}
+//		}
 		
 		//On change la valeur dans poleNord
-		this.setPoleNord(this.getPoleNord() - calculPole);
+		int newPole = this.getPoleNord() - calculPole;
+		this.setPoleNord(newPole);
 		
-		pilote.setAngularSpeed(150);
+		pilote.setAngularSpeed(100);
 	}
 
 	public void ouvrirPinces(boolean enCours) {
@@ -154,7 +151,7 @@ public class Actions {
 	}
 	
 	public void tournePoleNord() {
-		pilote.rotate(this.poleNord);
-		this.setPoleNord(0);
+		pilote.rotate(poleNord);
+		//this.setPoleNord(0); TODO : changé à 18h41 mais visiblement ça marche mieux
 	}
 }

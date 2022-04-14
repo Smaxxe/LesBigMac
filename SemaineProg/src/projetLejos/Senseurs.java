@@ -19,7 +19,7 @@ public class Senseurs {
 	private final static int REPO = 1;
 	private final static int MUR = 2;
 	private final static int RIEN = -1;
-	
+
 	private int compteur;
 
 	private EV3UltrasonicSensor SenseurUS;
@@ -30,7 +30,7 @@ public class Senseurs {
 		SenseurUS = new EV3UltrasonicSensor(us);
 		SenseurTouch = new EV3TouchSensor(touch);
 		SenseurColor = new EV3ColorSensor(color);
-		
+
 		compteur = 1;
 	}
 
@@ -86,7 +86,7 @@ public class Senseurs {
 	 *         mouvement
 	 */
 	public List<Float> prendreMesures(Actions act) {
-		
+
 		SampleProvider distance = SenseurUS.getMode("Distance");
 
 		float[] sample = new float[distance.sampleSize()];
@@ -96,7 +96,7 @@ public class Senseurs {
 		while (act.isMovingPilote()) {
 			Delay.msDelay(100);
 			distance.fetchSample(sample, 0);
-			this.compteur ++;
+			this.compteur++;
 			valeurs.add(sample[0]);
 		}
 
@@ -143,15 +143,14 @@ public class Senseurs {
 		int sampleDegres = 360 / this.compteur; // Calcul de l'angle de chaque donnée
 		int angleTot = sampleDegres * valeurs.indexOf(stock); // Calcul de l'angle absolu à prendre
 		this.compteur = 1;
-		System.out.println("dir : " + (angleTot-angle));
-		System.out.println("dir360 : " + (angleTot-360));
+		System.out.println("dir : " + (angleTot - angle));
+		System.out.println("dir360 : " + (angleTot - 360));
 		System.out.println("dist : " + stock);
 
-
-		return (angleTot-angle);
+		return (angleTot - angle);
 	}
 
-	public int anglePosition180(int angle, List<Float> valeurs) {
+	public int anglePosition120(int angle, List<Float> valeurs) {
 
 		float val;
 		boolean test = false;
@@ -180,12 +179,50 @@ public class Senseurs {
 		// On passe au calcul de l'angle à renvoyer en se basant sur l'indice de la plus
 		// petite valeur récupérée
 
-		int sampleDegres = angle / this.compteur; // Calcul de l'angle de chaque donnée
+		int sampleDegres = 120 / this.compteur; // Calcul de l'angle de chaque donnée
+		int angleTot = sampleDegres * valeurs.indexOf(stock); // Calcul de l'angle absolu à prendre
+		this.compteur = 1;
+		return (angle - angleTot); // on renvoie l'angle calculé
+	}
+	
+	public int anglePosition90(int angle, List<Float> valeurs) {
+
+		float val;
+		boolean test = false;
+		float stock = 500;
+
+		ListIterator<Float> it = valeurs.listIterator();
+
+		while (it.hasNext()) {
+			while (test == false) {
+				try {
+					val = it.next();
+
+					if (val < stock && val > 0.20) {
+						stock = val;
+					}
+
+					test = true;
+				} catch (Error e) {
+					it.next();
+				}
+			}
+
+			test = false;
+		}
+
+		// On passe au calcul de l'angle à renvoyer en se basant sur l'indice de la plus
+		// petite valeur récupérée
+
+		int sampleDegres = 90 / this.compteur; // Calcul de l'angle de chaque donnée
 		int angleTot = sampleDegres * valeurs.indexOf(stock); // Calcul de l'angle absolu à prendre
 		this.compteur = 1;
 		return (angle - angleTot); // on renvoie l'angle calculé
 	}
 
+	
+	
+	/////METHODE NON UTILISEES//////////////////
 	public boolean isPressed() {
 		float[] sample = new float[1];
 		SenseurTouch.fetchSample(sample, 0);
@@ -217,18 +254,18 @@ public class Senseurs {
 		SampleProvider colorProvider = SenseurColor.getRGBMode();
 		float[] colorSample = new float[colorProvider.sampleSize()];
 
-		SenseurColor.fetchSample(colorSample, 0);
-		SenseurColor.fetchSample(colorSample, 1);
-		SenseurColor.fetchSample(colorSample, 2);
-		Delay.msDelay(250);
-		SenseurColor.setFloodlight(Color.WHITE);
-		
-		if (colorSample[0] > 0.18 && colorSample[1] > 0.18 && colorSample[2] > 0.18) {
-			Delay.msDelay(250);
-			return true;
-		}
+		while (true) {
+			SenseurColor.fetchSample(colorSample, 0);
+			SenseurColor.fetchSample(colorSample, 1);
+			SenseurColor.fetchSample(colorSample, 2);
+			Delay.msDelay(1000);
+			SenseurColor.setFloodlight(Color.WHITE);
 
-		return false;
+			if (colorSample[0] > 0.18 && colorSample[1] > 0.18 && colorSample[2] > 0.18) {
+				Delay.msDelay(250);
+				return true;
+			}
+		}
 	}
 
 }
