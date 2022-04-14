@@ -56,8 +56,8 @@ public class Shrek {
 		// Instanciation d'un objet qui contrôle les moteurs
 		act = new Actions();
 
-		// Déclaration de l'état initial
-		ETAT = CHERCHETOURNE;
+		// Déclaration de l'état initial, état DEBUT
+		ETAT = DEBUT;
 
 	}
 
@@ -154,7 +154,7 @@ public class Shrek {
 	}
 
 	/**
-	 * Tourne sur lui-même et récupère des infos puis se tourne vers l'élément le
+	 * Tourne sur lui-même à 360 degrés et récupère des infos puis se tourne vers l'élément le
 	 * plus proche
 	 * 
 	 * @return VERSPALET

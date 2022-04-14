@@ -21,14 +21,13 @@ public class Actions {
 
 	private static final NXTRegulatedMotor PORTROUEG = Motor.A;
 	private static final NXTRegulatedMotor PORTROUED = Motor.B;
-//	private static final Port PORTPINCES = LocalEV3.get().getPort("C");
 
 	MovePilot pilote;
 	RegulatedMotor pince;
 
 	private int poleNord;
 
-	// constructeur, instancie 3 moteurs ( attributs)
+	//Constructeur : crée le pilote et fixe les vitesses, crée la pince et sa vitesse, fixe le PoleNord
 	public Actions() {
 
 		this.pilote = new MovePilot(55, 55, 145, PORTROUEG, PORTROUED, false); // marche bien
@@ -40,7 +39,6 @@ public class Actions {
 
 		// Fixation du Pole Nord (le camp adverse) à 0
 		poleNord = 0;
-
 	}
 
 	// Les méthodes
@@ -50,12 +48,17 @@ public class Actions {
 		// autre action en même temps qu'avancer
 	}
 
+	/** Méthode pour faire tourner la voiture
+	 * 
+	 * @param angle : angle de rotation
+	 * @param enCours : true si on veut exécuter les lignes de code qui suivent, sinon false
+	 */
 	public void tourne(int angle, boolean enCours) {
 		pilote.rotate(angle, enCours);
 
 		// On calcule la valeur qui va modifier le pole en enlevant les petites valeurs
 		// d'ajustement
-		// Et en vérifiant que c'est toujours entre 0 et 360
+		// Et en vérifiant que c'est toujours entre 0 et 300
 		int calculPole = angle % 300;
 
 		// Ici on teste pour limiter les variations et éviter d'enlever 7 et pas
@@ -76,13 +79,19 @@ public class Actions {
 		this.setPoleNord(newPole);
 	}
 	
+	/** Méthode pour tourner en prenant des mesures, donc même chose mais réduit la vitesse au début
+	 * et la remet à la normale ensuite
+	 * 
+	 * @param angle : angle de rotation
+	 * @param enCours : true si on veut exécuter les lignes de code qui suivent, sinon false
+	 */
 	public void tourneMesures(int angle, boolean enCours) {
 		pilote.setAngularSpeed(50);
 		tourne(angle, enCours);
 
 		// On calcule la valeur qui va modifier le pole en enlevant les petites valeurs
 		// d'ajustement
-		// Et en vérifiant que c'est toujours entre 0 et 360
+		// Et en vérifiant que c'est toujours entre 0 et 300
 		int calculPole = angle % 300;
 
 		// Ici on teste pour limiter les variations et éviter d'enlever 7 et pas
@@ -102,7 +111,7 @@ public class Actions {
 		int newPole = this.getPoleNord() - calculPole;
 		this.setPoleNord(newPole);
 		
-		pilote.setAngularSpeed(100);
+		pilote.setAngularSpeed(100); //TODO : si on rechange la vitesse de base, faut rechanger ça
 	}
 
 	public void ouvrirPinces(boolean enCours) {
